@@ -1,0 +1,197 @@
+<html>
+	<head>
+		<title>Timetable Generator</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var edit_entry_html = '\
+			<div>\
+				<label>Subject Name</label><input class="subject_input" type="text" value="{#name}" />\
+				<label>Length (hours)</label><input class="time_input" type="text" value="{#hours}" />\
+				<button class="save_entry">Save Entry</button>\
+			</div>';
+
+			colour_index = 0;
+			potential_colours = [ "dce6f1", "fde9d9", "ebf1de", "daeef3" ]
+			colour_map = {}
+
+			function mapVerticalCells( start_cell, depth, aFunction )
+			{
+				var table = start_cell.parent().parent();
+				var row = start_cell.parent();
+				var row_num = table.children().index( row );
+				var col_num = row.children().index( start_cell );
+				
+				if( isNaN( depth ) )
+					throw "Depth (" + depth + ") is not a number";
+				else
+					depth = parseInt( depth );
+				
+				for( var i = depth; i > 1; i-- )
+				{
+					var selected_row = table.children( ":nth-child(" + ( row_num + i ) + ")" );
+					aFunction( selected_row.children( ":nth-child(" + ( col_num + 1 ) + ")" ) );
+				}
+			}
+			
+			function updateSubject( cell, name, hours )
+			{
+				if( isNaN( hours ) || parseInt( hours ) < 1 )
+					hours = 1;
+				else if( parseInt( hours ) > 1 )
+					mapVerticalCells( cell, hours, function ( x ) { x.remove(); } );
+				
+				cell.html( name );				
+				cell.attr( "rowspan", hours );
+				
+				if( colour_map[ name ] == undefined )
+				{
+					colour_map[ name ] = potential_colours[ colour_index ];
+					colour_index++;
+					if( ( colour_index + 1 ) > colour_index.length )
+						colour_index = 0; 
+				}
+				
+				cell.css( "background-color", "#" + colour_map[ name ] );
+			}
+
+			$( "td" ).live( "click", function( event )
+			{
+				var cell = $( event.currentTarget );
+
+				// need to check event.target to prevent race conditions when saving
+				if( cell.hasClass( "selected" ) == false && !$( event.target ).hasClass( "save_entry" ) )
+				{
+					if( cell.attr( "rowspan" ) > 1 )
+					{
+						mapVerticalCells( cell, cell.attr( "rowspan" ), function ( x ) { x.before( "<td></td>" ); } );
+						var old_length = cell.attr( "rowspan" );
+						cell.attr( "rowspan", "1" );
+					}
+					else
+						var old_length = 1;
+								
+					cell.html( edit_entry_html.replace( "{#name}", cell.html() ).replace( "{#hours}", old_length ) ); // DIY templating :)
+					cell.addClass( "selected" );
+				}
+			} );
+			
+			$( ".save_entry" ).live( "click", function( event )
+			{
+				var button = $( event.currentTarget );
+				var cell = button.parent().parent();
+				var subject_name = cell.children( ":first" ).children( ":nth-child(2)" ).val();
+				var subject_hours = cell.children( ":first" ).children( ":nth-child(4)" ).val();
+				
+				updateSubject( cell, subject_name, subject_hours );
+				
+				cell.removeClass( "selected" );
+			} );
+		</script>
+		<style type="text/css">
+			#timetable
+			{
+				border-collapse: collapse;
+			}
+			#timetable td, th
+			{
+				width: 100px;
+				height: 40px;
+				border: 2px solid black;
+				text-align: center;
+				vertical-align: middle;
+			}
+			#timetable th
+			{
+				background-color: #D3D3D3;
+				font-family: Helvetica;
+				
+			}
+		</style>
+		<h1>Chris' Amazing Timetable Program</h1>
+		<table id="timetable">
+			<tr>
+				<th>
+				</th>
+				<th>Monday</th>
+				<th>Tuesday</th>
+				<th>Wednesday</th>
+				<th>Thursday</th>
+				<th>Friday</th>
+			</tr>
+			<tr>
+				<th>9:00 AM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>10:00 AM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>11:00 AM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>12 Noon</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>1:15 PM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>2:15 PM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>3:15 PM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>4:15 PM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>5:15 PM</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+	</body>
+</html>
