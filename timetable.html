@@ -44,15 +44,22 @@
 				
 				cell.html( name );				
 				cell.attr( "rowspan", hours );
-				
+				console.log( name );
+	
+
 				if( colour_map[ name ] == undefined )
 				{
-					colour_map[ name ] = potential_colours[ colour_index ];
-					colour_index++;
-					if( ( colour_index + 1 ) > colour_index.length )
-						colour_index = 0; 
+					if( name == "" )
+						colour_map[ name ] = "white";
+					else
+					{
+						colour_map[ name ] = potential_colours[ colour_index ];
+						colour_index++;
+						if( ( colour_index + 1 ) > colour_index.length )
+							colour_index = 0;
+					}
 				}
-				
+
 				cell.css( "background-color", "#" + colour_map[ name ] );
 			}
 
@@ -66,13 +73,10 @@
 					if( cell.attr( "rowspan" ) > 1 )
 					{
 						mapVerticalCells( cell, cell.attr( "rowspan" ), function ( x ) { x.before( "<td></td>" ); } );
-						var old_length = cell.attr( "rowspan" );
 						cell.attr( "rowspan", "1" );
 					}
-					else
-						var old_length = 1;
 								
-					cell.html( edit_entry_html.replace( "{#name}", cell.html() ).replace( "{#hours}", old_length ) ); // DIY templating :)
+					cell.html( edit_entry_html.replace( "{#name}", cell.html() ).replace( "{#hours}", 1 ) ); // DIY templating :)
 					cell.addClass( "selected" );
 				}
 			} );
@@ -109,7 +113,6 @@
 				
 			}
 		</style>
-		<h1>Chris' Amazing Timetable Program</h1>
 		<table id="timetable">
 			<tr>
 				<th>
