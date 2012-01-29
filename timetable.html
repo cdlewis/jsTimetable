@@ -29,10 +29,7 @@
 					depth = parseInt( depth );
 				
 				for( var i = depth; i > 1; i-- )
-				{
-					var selected_row = table.children( ":nth-child(" + ( row_num + i ) + ")" );
-					aFunction( selected_row.children( ":nth-child(" + ( col_num + 1 ) + ")" ) );
-				}
+					aFunction( $( ".x" + ( row_num + i - 1 ) + ".y" + col_num ) );
 			}
 			
 			function updateSubject( cell, name, hours )
@@ -40,13 +37,11 @@
 				if( isNaN( hours ) || parseInt( hours ) < 1 )
 					hours = 1;
 				else if( parseInt( hours ) > 1 )
-					mapVerticalCells( cell, hours, function ( x ) { x.remove(); } );
+					mapVerticalCells( cell, hours, function ( x ) { x.css( "display", "none" ); } );
 				
 				cell.html( name );				
 				cell.attr( "rowspan", hours );
-				console.log( name );
 	
-
 				if( colour_map[ name ] == undefined )
 				{
 					if( name == "" )
@@ -72,7 +67,7 @@
 				{
 					if( cell.attr( "rowspan" ) > 1 )
 					{
-						mapVerticalCells( cell, cell.attr( "rowspan" ), function ( x ) { x.before( "<td></td>" ); } );
+						mapVerticalCells( cell, cell.attr( "rowspan" ), function ( x ) { x.css( "display", "none" ); } );
 						cell.attr( "rowspan", "1" );
 					}
 								
@@ -125,75 +120,75 @@
 			</tr>
 			<tr>
 				<th>9:00 AM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x1 y1"></td>
+				<td class="x1 y2"></td>
+				<td class="x1 y3"></td>
+				<td class="x1 y4"></td>
 				<td></td>
 			</tr>
 			<tr>
 				<th>10:00 AM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x2 y1"></td>
+				<td class="x2 y2"></td>
+				<td class="x2 y3"></td>
+				<td class="x2 y4"></td>
+				<td class="x2 y5"></td>
 			</tr>
 			<tr>
 				<th>11:00 AM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x3 y1"></td>
+				<td class="x3 y2"></td>
+				<td class="x3 y3"></td>
+				<td class="x3 y4"></td>
+				<td class="x3 y5"></td>
 			</tr>
 			<tr>
 				<th>12 Noon</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x4 y1"></td>
+				<td class="x4 y2"></td>
+				<td class="x4 y3"></td>
+				<td class="x4 y4"></td>
+				<td class="x4 y5"></td>
 			</tr>
 			<tr>
 				<th>1:15 PM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x5 y1"></td>
+				<td class="x5 y2"></td>
+				<td class="x5 y3"></td>
+				<td class="x5 y4"></td>
+				<td class="x5 y5"></td>
 			</tr>
 			<tr>
 				<th>2:15 PM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x6 y1"></td>
+				<td class="x6 y2"></td>
+				<td class="x6 y3"></td>
+				<td class="x6 y4"></td>
+				<td class="x6 y5"></td>
 			</tr>
 			<tr>
 				<th>3:15 PM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x7 y1"></td>
+				<td class="x7 y2"></td>
+				<td class="x7 y3"></td>
+				<td class="x7 y4"></td>
+				<td class="x7 y5"></td>
 			</tr>
 			<tr>
 				<th>4:15 PM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x8 y1"></td>
+				<td class="x8 y2"></td>
+				<td class="x8 y3"></td>
+				<td class="x8 y4"></td>
+				<td class="x8 y5"></td>
 			</tr>
 			<tr>
 				<th>5:15 PM</th>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
+				<td class="x9 y1"></td>
+				<td class="x9 y2"></td>
+				<td class="x9 y3"></td>
+				<td class="x9 y4"></td>
+				<td class="x9 y5"></td>
 			</tr>
 		</table>
 	</body>
