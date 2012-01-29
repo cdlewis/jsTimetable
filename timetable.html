@@ -19,17 +19,14 @@
 				
 				return function( name )
 				{
-					if( map[ name ] == undefined )
+					if( name == "" )
+						return "white";
+					else if( map[ name ] == undefined )
 					{
-						if( name == "" )
-							map[ name ] = "white";
-						else
-						{
-							map[ name ] = potential_colours[ index ];
-							index++;
-							if( ( index + 1 ) > index.length )
-								index = 0;
-						}
+						map[ name ] = potential_colours[ index ];
+						index++;
+						if( ( index + 1 ) > index.length )
+							index = 0;
 					}
 					
 					return "#" + map[ name ];
