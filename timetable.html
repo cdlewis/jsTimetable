@@ -105,7 +105,11 @@ a=cell;
 				
 				cell.removeClass( "selected" );
 				
-				$( location ).attr( "href", $( location ).attr( "href" ).replace( /#.*?$/, "#" + saveTimetable() ) );
+				var url = $( location ).attr( "href" );
+				if( url.match( /#.*?$/ ) )
+					$( location ).attr( "href", url.replace( /#.*?$/, "#" + saveTimetable() ) );
+				else
+					$( location ).attr( "href", url + "#" + saveTimetable() );
 			} );
 			
 			$( document ).ready( function()
