@@ -63,6 +63,18 @@ a=cell;
 				cell.css( "background-color", colours( name ) );
 			}
 
+			function saveTimetable()
+			{
+				return encodeURI( $.map( $( "td" ), function( element )
+				{
+					var name = $( element ).html();
+					var length = $( element ).attr( "rowspan" );
+					
+					if( name != "" && length != undefined )
+						return element.className + "," + name + "," + length;
+				} ).join("|") );
+			}
+
 			$( "td" ).live( "click", function( event )
 			{
 				var cell = $( event.currentTarget );
@@ -78,6 +90,7 @@ a=cell;
 								
 					cell.html( edit_entry_html.replace( "{#name}", cell.html() ).replace( "{#hours}", 1 ) ); // DIY templating :)
 					cell.addClass( "selected" );
+					cell[ 0 ].focus();
 				}
 			} );
 			
@@ -91,6 +104,29 @@ a=cell;
 				updateSubject( cell, subject_name, subject_hours );
 				
 				cell.removeClass( "selected" );
+				
+				$( location ).attr( "href", $( location ).attr( "href" ).replace( /#.*?$/, "#" + saveTimetable() ) );
+			} );
+			
+			$( document ).ready( function()
+			{
+				var url = $( location ).attr( "href" );
+				
+				if( url.match( /#.*?$/ ) )
+				{
+					var raw = decodeURI( url.replace( /^.*?#/, "" ) );
+					var cells = raw.split("|")
+					
+					for( var i = 0; i < cells.length; i++ )
+					{
+						var values = cells[ i ].split( "," );
+						var cords = values[ 0 ].split( " " );
+						var name = values[ 1 ];
+						var length = values[ 2 ];
+						
+						updateSubject( $( "." + cords[ 0 ] + "." + cords[ 1 ] ), name, length );
+					}
+				}
 			} );
 		</script>
 		<style type="text/css">
@@ -113,6 +149,12 @@ a=cell;
 				
 			}
 		</style>
+		<h2>Chris' Amazing Timetable Maker</h2>
+		<ul>
+			<li>Click a timeslot to add a subject.</li>
+			<li>Subjects will automatically be colour coded according to their name.</li>
+			<li>The link to this page is updated each time you alter your timetable - you can share your timetable with others by copying it and giving it to them!</li>
+		</ul>
 		<table id="timetable">
 			<tr>
 				<th>
