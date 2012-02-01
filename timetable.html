@@ -9,6 +9,15 @@
 			<div>\
 				<label>Subject Name</label><input class="subject_input" type="text" value="{#name}" />\
 				<label>Length (hours)</label><input class="time_input" type="text" value="{#hours}" />\
+				<label>Repeat Class</label>\
+			<!--	<select class="repeat_input">\
+					<option value="-1"></option>\
+					<option value="1">Monday</option>\
+					<option value="2">Tuesday</option>\
+					<option value="3">Wednesday</option>\
+					<option value="4">Thursday</option>\
+					<option value="5">Friday</option>\
+				</select>-->\
 				<button class="save_entry">Save Entry</button>\
 			</div>';
 
@@ -132,7 +141,7 @@
 				if( url.match( /#.*?$/ ) )
 				{
 					var raw = decodeURI( url.replace( /^.*?#/, "" ) );
-					var cells = raw.split(".")
+					var cells = raw.split( "." )
 					
 					for( var i = 0; i < cells.length; i++ )
 					{
@@ -168,6 +177,10 @@
 			#timetable td
 			{
 				cursor: pointer;
+			}
+			.save_entry
+			{
+				margin-top: 10px;
 			}
 		</style>
 		<h2>Chris' Amazing Timetable Maker</h2>
