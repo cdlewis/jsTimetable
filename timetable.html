@@ -10,14 +10,14 @@
 				<label>Subject Name</label><input class="subject_input" type="text" value="{#name}" />\
 				<label>Length (hours)</label><input class="time_input" type="text" value="{#hours}" />\
 				<label>Repeat Class</label>\
-			<!--	<select class="repeat_input">\
+				<select class="repeat_input">\
 					<option value="-1"></option>\
 					<option value="1">Monday</option>\
 					<option value="2">Tuesday</option>\
 					<option value="3">Wednesday</option>\
 					<option value="4">Thursday</option>\
 					<option value="5">Friday</option>\
-				</select>-->\
+				</select>\
 				<button class="save_entry">Save Entry</button>\
 			</div>';
 
@@ -63,7 +63,7 @@
 			{
 				var hours = parseInt( hours );
 				
-				if( isNaN( hours ) || hours < 1 )
+				if( isNaN( hours ) || hours < 1 || hours > $( "#timetable tr" ).length )
 					hours = 1;
 				else if( hours > 1 )
 					mapVerticalCells( cell, hours, function ( x ) { x.css( "display", "none" ); } );
