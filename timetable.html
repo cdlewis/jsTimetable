@@ -21,6 +21,16 @@
 				<button class="save_entry">Save Entry</button>\
 			</div>';
 
+			function decodeCoords( element )
+			{
+				// If the element is a jQuery object then convert to regular DOM
+				if( element instanceof jQuery )
+					element = element[ 0 ];
+				
+				var raw = element.className.replace( "x", "" ).replace( "y", "" ).split( " " );
+				return { x: raw[ 0 ], y: raw[ 1 ] };
+			}
+
 			function colourGenerator( potential_colours )
 			{
 				map = {};
@@ -59,9 +69,13 @@
 					aFunction( $( ".x" + ( row_num + i - 1 ) + ".y" + col_num ) );
 			}
 			
-			function updateSubject( cell, name, hours )
+			/*
+				repeat: can take on a number of values. When positive, it indicates the day on which the subject is to be repeated. If -1 then it indicates that no action should be taken. -2 indicates that the subject is the second in a repeating sequence.
+			 */
+			function enterSubject( cell, name, hours, repeat )
 			{
 				var hours = parseInt( hours );
+				var repeat = parseInt( repeat );
 				
 				if( isNaN( hours ) || hours < 1 || hours > $( "#timetable tr" ).length )
 					hours = 1;
@@ -71,30 +85,44 @@
 				cell.html( name );				
 				cell.attr( "rowspan", hours );
 				cell.css( "background-color", colours( name ) );
+								
+				if( repeat > 1 )
+				{
+					var coords = decodeCoords( cell );
+					
+					// Make sure it's not the same column
+					if( coords.y == repeat )
+						return;
+
+					enterSubject( $( ".x" + coords.x + ".y" + repeat ), name, hours, -2 );					
+				}
 			}
 
 			function saveTimetable()
 			{
-				/* ways of compressing the info 
-					- remove x,y from the cords
-					- don't include the length if it is 1
-					- ensure that the rowspan is only ever a number		
-				*/
-			
-				return encodeURI( $.map( $( "td" ), function( element )
-				{
+				var tokens = $.map( $( "td" ), function( element )
+				{	
 					var name = $( element ).html().replace( /:\.,/m, "" );
 					var length = $( element ).attr( "rowspan" );
-					var coords = element.className.replace( "x", "" ).replace( "y", "" ).replace( " ", ":" )
-										
-					if( name != "" && length != undefined )
-					{
-						if( length == "1" )
-							return coords + "," + name;
-						else
-							return coords + "," + name + "," + length;
-					}
-				} ).join( "." ) );
+					var coords = decodeCoords( element );
+
+					/* There are some circumstances in which cell information need not be coded
+						- The cell is blank (it is assumed that cells with empty names are blank).
+						- The cell does not have a valid length (this should never occur).
+						- The cell is a ghost cell, ie it is the second in a repeating sequence. This is handled in the originating cell.
+					 */
+					if( name == "" )
+						return;
+
+					var base_encoding = coords.x + ":" + coords.y + "," + name;
+					
+					if( length > 1 ) // include the length and the repeat
+						base_encoding += "," + length;
+
+					return base_encoding;
+				} );
+				c = tokens;
+				return encodeURI( tokens.join( "." ) );
 			}
 
 			$( "td" ).live( "click", function( event )
@@ -109,7 +137,7 @@
 						mapVerticalCells( cell, cell.attr( "rowspan" ), function ( x ) { x.css( "display", "block" ); } );
 						cell.attr( "rowspan", "1" );
 					}
-								
+
 					cell.html( edit_entry_html.replace( "{#name}", cell.html() ).replace( "{#hours}", 1 ) ); // DIY templating :)
 					cell.addClass( "selected" );
 					cell[ 0 ].focus();
@@ -122,8 +150,9 @@
 				var cell = button.parent().parent();
 				var subject_name = cell.children( ":first" ).children( ":nth-child(2)" ).val();
 				var subject_hours = cell.children( ":first" ).children( ":nth-child(4)" ).val();
-				
-				updateSubject( cell, subject_name, subject_hours );
+				var subject_repeat = cell.children( ":first" ).children( ":nth-child(6)" ).val();
+
+				enterSubject( cell, subject_name, subject_hours, subject_repeat );
 				
 				cell.removeClass( "selected" );
 				
@@ -148,12 +177,27 @@
 						var values = cells[ i ].split( "," );
 						var cords = values[ 0 ].split( ":" );
 						var name = values[ 1 ];
-						var length = values[ 2 ];
 						
-						updateSubject( $( ".x" + cords[ 0 ] + ".y" + cords[ 1 ] ), name, length );
+						if( values.length <= 2 )
+						{
+							var length = 1;
+							var repeat = -1;
+						}
+						else
+						{
+							var temp = values[ 2 ].split( "+" );							
+							if( temp.length < 2 )
+								temp[ 1 ] = -1;
+							
+							var length = temp[ 0 ];
+							var repeat = temp[ 1 ]
+						}
+						
+						enterSubject( $( ".x" + cords[ 0 ] + ".y" + cords[ 1 ] ), name, length, repeat );
 					}
 				}
 			} );
+			
 		</script>
 		<style type="text/css">
 			#timetable
@@ -205,7 +249,7 @@
 				<td class="x1 y2"></td>
 				<td class="x1 y3"></td>
 				<td class="x1 y4"></td>
-				<td></td>
+				<td class="x1 y5"></td>
 			</tr>
 			<tr>
 				<th>10:00 AM</th>
