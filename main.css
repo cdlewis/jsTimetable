@@ -1,0 +1,61 @@
+/* General Styles */
+body
+{
+	margin-top: 40px;
+}
+
+h1
+{
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	size: 40px;
+	text-rendering: optimizelegibility;
+	text-align: center;
+	padding-left: 14px;
+}
+
+/* Styles relating to the table */
+#timetable
+{
+	border-collapse: collapse;
+	margin: 0 auto;
+}
+
+#timetable td, th
+{
+	width: 100px;
+	height: 40px;
+	border: 2px solid black;
+	text-align: center;
+	vertical-align: middle;
+	font-family: Helvetica, sans-serif;
+}
+
+#timetable th
+{
+	background-color: #D3D3D3;
+}
+
+#timetable td
+{
+	cursor: pointer;
+}
+
+/* Styles used within table cells */
+.save_entry
+{
+	margin-top: 10px;
+}
+
+.room
+{
+	font-size: 75%;
+}
+
+/* Styles used for navigation */
+#button_container
+{
+	text-align: center;
+	margin: 0 auto;
+	padding-top: 21px;
+	padding-left: 14px;
+}
