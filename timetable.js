@@ -110,11 +110,11 @@ function saveTimetable()
 	{
 		var name = $( element ).find( ".name" ).html()
 	
-		if( name == null ) 
+		if( name == null || name == "" ) 
 			return;
 		else
 			name = name.replace( /:|\.|_|,/g, "" ).replace( " ", "_" );
-	
+
 		var room = $( element ).find( ".room" ).html()
 		
 		if( room == null )
@@ -192,17 +192,19 @@ $( "td" ).live( "click", function( event )
 		var room = cell.find( ".room" ).html();
 		var hours = cell.attr( "rowspan" );
 		
+		// Ensure we end up with valid options
+		if( name == null )
+			name = "";
 		if( room == null )
 			room = "";
+		if( hours == null || hours == NaN )
+			hours = 1;
 		
 		if( cell.attr( "rowspan" ) > 1 )
 		{
 			mapVerticalCells( cell, cell.attr( "rowspan" ), function ( x ) { x.css( "display", "block" ); } );
 			cell.attr( "rowspan", "1" );
 		}
-		else
-			hours = 1;
-
 
 		cell.html( edit_entry_html.replace( "{#name}", name ).replace( "{#hours}", hours ).replace( "{#room}", room ) ); // DIY templating :)
 		cell.addClass( "selected" );
