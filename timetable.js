@@ -113,15 +113,15 @@ function saveTimetable()
 		if( name == null ) 
 			return;
 		else
-			name = name.replace( /:\._,/g, "" ).replace( " ", "_" );
+			name = name.replace( /:|\.|_|,/g, "" ).replace( " ", "_" );
 	
 		var room = $( element ).find( ".room" ).html()
 		
 		if( room == null )
 			room = "";
 		else
-			room = room.replace( /:\._,/g, "" ).replace( " ", "_" );
-		
+			room = room = room.replace( /:|\.|_|,|\(|\)/g, "" ).replace( " ", "_" );
+			
 		var length = $( element ).attr( "rowspan" );
 		var coords = decodeCoords( element );
 
@@ -280,5 +280,11 @@ $( document ).ready( function()
 		event.preventDefault();
 		if( confirm( "You are being redirected to Facebook in order to share this timetable. If you do not wish to do this then press cancel." ) )
 			window.location = "https://www.facebook.com/dialog/send?app_id=322630987775976&name=My%20Timetable&link=" + $( location ).attr( "href" ) + "&redirect_uri=" + $( location ).attr( "href" );
+	} );
+	
+	$( "#print_button" ).click( function( event )
+	{
+		event.preventDefault();
+		window.print();
 	} );
 } );
