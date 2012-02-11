@@ -2,6 +2,7 @@
 	<head>
 		<title>Timetable Generator</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="buttons.css" />
 	</head>
 	<body>
 		<script type="text/javascript">
@@ -146,7 +147,25 @@
 					}
 				}
 
-				return encodeURI( tokens.join(".").replace( /\.\./g, "." ).replace( /(\.$)/g, "" ) );
+				var generated_state = encodeURI( tokens.join(".").replace( /\.\./g, "." ).replace( /(\.$)/g, "" ) );
+				
+				// save the generated state in the URL	
+				var url = $( location ).attr( "href" );
+				if( url.match( /#.*?$/ ) )
+					$( location ).attr( "href", url.replace( /#.*?$/, "#" + generated_state ) );
+				else
+					$( location ).attr( "href", url + "#" + generated_state );
+			}
+
+			function resetTimetable()
+			{
+				$.map( $( "td" ), function( element )
+				{
+					// clear all attributes
+					$( element ).html( "" ).css( "background-color", "white" ).attr( "rowspan", "1" ).css( "display", "block" );
+				} );
+				
+				saveTimetable();
 			}
 
 			$( "td" ).live( "click", function( event )
@@ -183,16 +202,11 @@
 				enterSubject( cell, subject_name, subject_hours, subject_repeat );
 				
 				cell.removeClass( "selected" );
-				
-				var url = $( location ).attr( "href" );
-				if( url.match( /#.*?$/ ) )
-					$( location ).attr( "href", url.replace( /#.*?$/, "#" + saveTimetable() ) );
-				else
-					$( location ).attr( "href", url + "#" + saveTimetable() );
 			} );
 			
 			$( document ).ready( function()
 			{
+				// Step 1. load the program state from the URL (if it exists)
 				var url = $( location ).attr( "href" );
 				
 				if( url.match( /#.*?$/ ) )
@@ -224,10 +238,35 @@
 						enterSubject( $( ".x" + cords[ 0 ] + ".y" + cords[ 1 ] ), name, length, repeat );
 					}
 				}
+
+				// Step 2. Hook up buttons
+				$( "#delete_button" ).click( function( event )
+				{
+					event.preventDefault();
+					if( confirm( "Are you sure that you want to delete this timetable?" ) )
+						resetTimetable();
+				} );
+				
+				$( "#save_button, #share_button" ).click( function( event )
+				{
+					event.preventDefault();
+				} );
 			} );
 			
 		</script>
 		<style type="text/css">
+			body
+			{
+				margin-top: 40px;
+			}
+			h1
+			{
+				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+				size: 40px;
+				text-rendering: optimizelegibility;
+				text-align: center;
+				padding-left: 14px;
+			}
 			#timetable
 			{
 				border-collapse: collapse;
@@ -254,13 +293,16 @@
 			{
 				margin-top: 10px;
 			}
+			#button_container
+			{
+				text-align: center;
+				margin: 0 auto;
+				padding-top: 15px;
+				padding-left: 14px;
+			}
 		</style>
-		<h2>Chris' Amazing Timetable Maker</h2>
-		<ul>
-			<li>Click a timeslot to add a subject.</li>
-			<li>Subjects will automatically be colour coded according to their name.</li>
-			<li>The link to this page is updated each time you alter your timetable - you can share your timetable with others by copying it and giving it to them!</li>
-		</ul>
+		<h1>Chris' Amazing Timetable Maker</h1>
+
 		<table id="timetable">
 			<tr>
 				<th>
@@ -344,5 +386,10 @@
 				<td class="x9 y5"></td>
 			</tr>
 		</table>
+		<div id="button_container">
+			<a href="#" id="save_button" class="button save">Save</a>
+			<a href="#" id="delete_button" class="button delete">Delete</a>
+			<a href="#" id="share_button" class="button like">Share on Facebook</a>
+		</div>
 	</body>
 </html>
