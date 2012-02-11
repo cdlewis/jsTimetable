@@ -3,6 +3,8 @@
 		<title>Timetable Generator</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="buttons.css" />
+		<meta property="og:title" content="Chris' Timetable Generator" />
+		<meta property="og:description" content="A website to facilitate the quick and easy creation of timetables!" />
 	</head>
 	<body>
 		<script type="text/javascript">
@@ -65,7 +67,9 @@
 			/*
 				repeat: can take on a number of values. When positive, it indicates the day on which the subject is to be repeated. If -1 then it indicates that no action should be taken. -2 indicates that the subject is the second in a repeating sequence.
 			 */
-			function enterSubject( cell, name, hours, repeat )
+			 
+			// TODO: properly sanitise input
+			function enterSubject( cell, name, hours, room, repeat )
 			{
 				var hours = parseInt( hours );
 				var repeat = parseInt( repeat );
@@ -75,19 +79,33 @@
 				else if( hours > 1 )
 					mapVerticalCells( cell, hours, function ( x ) { x.css( "display", "none" ); } );
 				
-				cell.html( name );				
+				cell.html( "<span class='name'>" + name + "</span>" );				
 				cell.attr( "rowspan", hours );
 				cell.css( "background-color", colours( name ) );
-								
+							 a=cell;	
+				
+				// Add room information if any exists
+				if( room != "" )
+					cell.append( "<div class='room'>(" + room.replace( /\(|\)/g, "" ) + ")</div>" );
+				
+				/* The styling of the room information is dependant on the space available.
+				 * In the event that there is only 1 hour allocated then no padding is
+				 * necessary; otherwise pad at 10%.
+				 */
+
+				if( hours > 1 )
+					cell.find( ".room" ).css( "padding-top", "10%" );				
+			
+			
 				if( repeat > 1 )
 				{
 					var coords = decodeCoords( cell );
-					
+
 					// Make sure it's not the same column
 					if( coords.y == repeat )
 						return;
 
-					enterSubject( $( ".x" + coords.x + ".y" + repeat ), name, hours, -2 );					
+					enterSubject( $( ".x" + coords.x + ".y" + repeat ), name, hours, room, -2 );					
 				}
 			}
 
@@ -99,20 +117,25 @@
 			function saveTimetable()
 			{
 				var tokens = $.map( $( "td" ), function( element )
-				{	
-					var name = $( element ).html().replace( /:\._,/g, "" ).replace( " ", "_" );
+				{
+					var name = $( element ).find( ".name" ).html()
+				
+					if( name == null ) 
+						return;
+					else
+						name = name.replace( /:\._,/g, "" ).replace( " ", "_" );
+				
+					var room = $( element ).find( ".room" ).html()
+					
+					if( room == null )
+						room = "";
+					else
+						room = room.replace( /:\._,/g, "" ).replace( " ", "_" );
+					
 					var length = $( element ).attr( "rowspan" );
 					var coords = decodeCoords( element );
 
-					/* There are some circumstances in which cell information need not be coded
-						- The cell is blank (it is assumed that cells with empty names are blank).
-						- The cell does not have a valid length (this should never occur).
-						- The cell is a ghost cell, ie it is the second in a repeating sequence. This is handled in the originating cell.
-					 */
-					if( name == "" ) 
-						return;
-
-					var base_encoding = coords.x + ":" + coords.y + "," + name;
+					var base_encoding = coords.x + ":" + coords.y + "," + name + "," + room;
 					
 					if( length > 1 ) // include the length and the repeat
 						base_encoding += "," + length;
@@ -136,7 +159,7 @@
 							{
 								var token_length = tokens[ i ].split( "," ).length;
 								
-								if( token_length == 3 )
+								if( token_length == 4 )
 									tokens[ i ] += "+" + tokens[ j ][ 2 ];
 								else
 									tokens[ i ] += ",+" + tokens[ j ][ 2 ];
@@ -175,7 +198,12 @@
 				// need to check event.target to prevent race conditions when saving
 				if( cell.hasClass( "selected" ) == false && !$( event.target ).hasClass( "save_entry" ) )
 				{
+					var name = cell.find( ".name" ).html();
+					var room = cell.find( ".room" ).html();
 					var hours = cell.attr( "rowspan" );
+					
+					if( room == null )
+						room = "";
 					
 					if( cell.attr( "rowspan" ) > 1 )
 					{
@@ -185,7 +213,8 @@
 					else
 						hours = 1;
 
-					cell.html( edit_entry_html.replace( "{#name}", cell.html() ).replace( "{#hours}", hours ) ); // DIY templating :)
+
+					cell.html( edit_entry_html.replace( "{#name}", name ).replace( "{#hours}", hours ).replace( "{#room}", room ) ); // DIY templating :)
 					cell.addClass( "selected" );
 					cell[ 0 ].focus();
 				}
@@ -197,9 +226,11 @@
 				var cell = button.parent().parent();
 				var subject_name = cell.children( ":first" ).children( ":nth-child(2)" ).val();
 				var subject_hours = cell.children( ":first" ).children( ":nth-child(4)" ).val();
-				var subject_repeat = cell.children( ":first" ).children( ":nth-child(6)" ).val();
+				var subject_room = cell.children( ":first" ).children( ":nth-child(6)" ).val();
 
-				enterSubject( cell, subject_name, subject_hours, subject_repeat );
+				enterSubject( cell, subject_name, subject_hours, subject_room );
+				
+				saveTimetable();
 				
 				cell.removeClass( "selected" );
 			} );
@@ -219,15 +250,16 @@
 						var values = cells[ i ].split( "," );
 						var cords = values[ 0 ].split( ":" );
 						var name = values[ 1 ].replace( "_", " " );
+						var room = values[ 2 ].replace( "_", " " );
 						
-						if( values.length <= 2 )
+						if( values.length <= 3 )
 						{
 							var length = 1;
 							var repeat = -1;
 						}
 						else
 						{
-							var temp = values[ 2 ].split( "+" );							
+							var temp = values[ 3 ].split( "+" );							
 							if( temp.length < 2 )
 								temp[ 1 ] = -1;
 							
@@ -235,7 +267,7 @@
 							var repeat = temp[ 1 ]
 						}
 						
-						enterSubject( $( ".x" + cords[ 0 ] + ".y" + cords[ 1 ] ), name, length, repeat );
+						enterSubject( $( ".x" + cords[ 0 ] + ".y" + cords[ 1 ] ), name, length, room, repeat );
 					}
 				}
 
@@ -247,14 +279,26 @@
 						resetTimetable();
 				} );
 				
-				$( "#save_button, #share_button" ).click( function( event )
+				$( "#save_button" ).click( function( event )
 				{
 					event.preventDefault();
+					alert( "Add this page as a bookmark or keep a copy of the URL in order to save your timetable." );
+				} );
+				
+				$( "#share_button" ).click( function( event )
+				{
+					event.preventDefault();
+					if( confirm( "You are being redirected to Facebook in order to share this timetable. If you do not wish to do this then press cancel." ) )
+						window.location = "https://www.facebook.com/dialog/send?app_id=322630987775976&name=My%20Timetable&link=" + $( location ).attr( "href" ) + "&redirect_uri=" + $( location ).attr( "href" );
 				} );
 			} );
 			
 		</script>
 		<style type="text/css">
+			.room
+			{
+				font-size: 75%;
+			}
 			body
 			{
 				margin-top: 40px;
@@ -279,11 +323,11 @@
 				border: 2px solid black;
 				text-align: center;
 				vertical-align: middle;
+				font-family: Helvetica, sans-serif;
 			}
 			#timetable th
 			{
 				background-color: #D3D3D3;
-				font-family: Helvetica;
 			}
 			#timetable td
 			{
@@ -297,7 +341,7 @@
 			{
 				text-align: center;
 				margin: 0 auto;
-				padding-top: 15px;
+				padding-top: 21px;
 				padding-left: 14px;
 			}
 		</style>
@@ -388,8 +432,8 @@
 		</table>
 		<div id="button_container">
 			<a href="#" id="save_button" class="button save">Save</a>
-			<a href="#" id="delete_button" class="button delete">Delete</a>
-			<a href="#" id="share_button" class="button like">Share on Facebook</a>
+			<a href="#" id="share_button" class="button like">Share</a>
+			<a href="#" id="delete_button" class="button delete">Reset</a>
 		</div>
 	</body>
 </html>
