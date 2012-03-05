@@ -1,14 +1,48 @@
 <html>
 	<head>
 		<title>Timetable Generator</title>
-		<link rel="stylesheet" type="text/css" href="buttons.css" />
-		<link rel="stylesheet" type="text/css" href="main.css" />
+		<link rel="stylesheet" type="text/css" href="style/bootstrap.css" />
+		<link rel="stylesheet" type="text/css" href="style/main.css" />
 		<meta property="og:title" content="Chris' Timetable Generator" />
 		<meta property="og:description" content="A website to facilitate the quick and easy creation of timetables!" />
 	</head>
-	<body>
+	<body>	
+		<div class="modal" id="edit_subject" style="display: none";>
+			<div class="modal-header">
+				<a class="close" data-dismiss="modal">×</a>
+				<h3>Add/Edit Subject</h3>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal"><fieldset>
+					<input type="hidden" class="target_class" />
+					<input type="hidden" class="original_time" />
+					<div class="control-group">
+				  		<label for="subject_input">Name</label>
+				  		<div class="control">
+				  			<input class="subject_input input-xlarge" type="text" value="" />
+				  		</div>
+				  	</div>
+				  	<div class="control-group">
+				  		<label for="time_input">Length</label>
+				  		<div class="control">
+				  			<input class="time_input input-xlarge" type="text" value="" />
+				  		</div>
+				  	</div>
+				  	<div class="control-group">
+				  		<label for="room_input">Room</label>
+				  		<div class="control">
+				  			<input class="room_input input-xlarge" type="text" value="" />
+			  			</div>
+			  		</div>
+			  	</fieldset></form>
+			</div>
+			<div class="modal-footer">
+				<a href="#" class="btn btn-primary save">Save Changes</a>
+				<a href="#" class="btn cancel">Cancel</a>
+				<a href="#" class="btn reset">Reset</a>
+			</div>
+		</div>
 		<h1>Chris' Amazing Timetable Maker</h1>
-
 		<table id="timetable">
 			<tr>
 				<th>
@@ -20,7 +54,7 @@
 				<th>Friday</th>
 			</tr>
 			<tr>
-				<th>9:00 AM</th>
+				<th>9:00 AM</th>				
 				<td class="x1 y1"></td>
 				<td class="x1 y2"></td>
 				<td class="x1 y3"></td>
@@ -92,13 +126,25 @@
 				<td class="x9 y5"></td>
 			</tr>
 		</table>
-		<div id="button_container">
-			<a href="#" id="save_button" class="button save">Save</a>
-			<a href="#" id="share_button" class="button like">Share</a>
-			<a href="#" id="print_button" class="button spark">Print</a>
-			<a href="#" id="delete_button" class="button delete">Reset</a>
+		<div class="form-actions navigation_menu">
+			<a href="#" id="save_button" class="btn btn-large btn-primary save">
+				<i class="icon-ok icon-white"></i>
+				&nbsp;Save
+			</a>
+			<a href="#" id="share_button" class="btn btn-large like">
+				<i class="icon-heart"></i>
+				&nbsp;Share</a>
+			<a href="#" id="print_button" class="btn btn-large spark">
+				<i class="icon-print"></i>
+				&nbsp;Print
+			</a>
+			<a href="#" id="delete_button" class="btn btn-large delete">
+				<i class="icon-trash"></i>
+				&nbsp;Reset
+			</a>
 		</div>
 	</body>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script src="timetable.min.js"></script>
+	<script src="script/bootstrap.min.js"></script>
+	<script src="script/timetable.js"></script>
 </html>
