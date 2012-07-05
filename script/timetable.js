@@ -207,8 +207,9 @@ function saveTimetable()
 			}
 		}
 	}
-
-	var generated_state = encodeURI( tokens.join(".").replace( /\.\./g, "." ).replace( /(\.$)/g, "" ) );
+	console.log( tokens );
+	a = tokens;
+	var generated_state = encodeURI( tokens.join( "." ).replace( /(\.){2,}|(\.)$/g, '.' ) );
 	
 	// save the generated state in the URL	
 	var url = $( location ).attr( "href" );
